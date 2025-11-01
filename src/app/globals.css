@@ -6,7 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: Source Code Pro, monospace;
+  --font-sans: var(--font-outfit-sans), monospace;
   --font-mono: Source Code Pro, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -102,7 +102,7 @@
   --sidebar-border: oklch(0.8931 0.0205 204.4136);
   --sidebar-ring: oklch(0.5624 0.0947 203.2755);
   --destructive-foreground: oklch(1.0000 0 0);
-  --font-sans: Courier New, monospace;
+  --font-sans: var(--font-outfit-sans), monospace;
   --font-serif: Courier New, monospace;
   --font-mono: Courier New, monospace;
   --shadow-color: hsl(185 70% 30% / 0.15);
@@ -158,7 +158,7 @@
   --sidebar-ring: oklch(0.8520 0.1269 195.0354);
   --destructive-foreground: oklch(0.9612 0 0);
   --radius: 0.125rem;
-  --font-sans: Source Code Pro, monospace;
+  --font-sans: var(--font-outfit-sans), monospace;
   --font-serif: Source Code Pro, monospace;
   --font-mono: Source Code Pro, monospace;
   --shadow-color: hsl(180 70% 60% / 0.2);
