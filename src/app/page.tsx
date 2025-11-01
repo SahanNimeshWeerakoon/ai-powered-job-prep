@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 
 export default function Page() {
@@ -5,6 +6,7 @@ export default function Page() {
     <>
       <SignInButton />
       <UserButton />
+      <ThemeToggle />
     </>
   )
 }
