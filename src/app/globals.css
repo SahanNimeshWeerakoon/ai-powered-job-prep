@@ -69,6 +69,7 @@
 }
 
 :root {
+  --header-height: 4rem;
   --radius: 0.125rem;
   --background: oklch(0.9491 0.0085 197.0126);
   --foreground: oklch(0.3772 0.0619 212.6640);
