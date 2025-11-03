@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SignOutButton, useClerk } from "@clerk/nextjs"
 import Link from "next/link"
+import { UserAvatar } from "@/components/UserAvatar"
 
 export function Navbar({user}: {user: {name: string; imageUrl: string}}) {
     const { openUserProfile } = useClerk()
@@ -27,12 +28,7 @@ export function Navbar({user}: {user: {name: string; imageUrl: string}}) {
                     
                     <DropdownMenu>
                         <DropdownMenuTrigger className="outline-none">
-                            <Avatar>
-                                <AvatarImage src={user.imageUrl} alt={user.name} />
-                                <AvatarFallback>
-                                    {user.name.split(" ").map(name => name[0]).join("")}
-                                </AvatarFallback>
-                            </Avatar>
+                            <UserAvatar user={user} />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => openUserProfile()}>
