@@ -1,4 +1,6 @@
 import { BackLink } from "@/components/BackLink";
+import { Skeleton } from "@/components/Skeleton";
+import { SuspendedItem } from "@/components/SuspendedItem";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/drizzle/db";
@@ -34,11 +36,16 @@ const options = [
 
 export default async function JobInfoPage({params}: {params: Promise<{jobInfoId: string}>}) {
     const { jobInfoId } = await params;
-    const {userId, redirectToSignIn} = await getCurrentUser({});
-    if(userId == null) return redirectToSignIn();
+    
+    const jobInfo = getCurrentUser({})
+        .then(async ({ userId, redirectToSignIn }) => {
+            if(userId == null) return redirectToSignIn();
 
-    const jobInfo = await getJobInfo(jobInfoId, userId);
-    if(jobInfo == null) return notFound();
+            const jobInfo = await getJobInfo(jobInfoId, userId);
+            if(jobInfo == null) return notFound();
+            
+             return jobInfo;
+        });
 
     return (
         <div className="container my-3 space-y-4">
@@ -46,15 +53,39 @@ export default async function JobInfoPage({params}: {params: Promise<{jobInfoId:
             <div className="space-y-6">
                 <header className="space-y-4">
                     <div className="space-y-2">
-                        <h1 className="text-3xl md:text-4xl">{jobInfo.name}</h1>
+                        <h1 className="text-3xl md:text-4xl">
+                            <SuspendedItem
+                                item={jobInfo}
+                                fallback={<Skeleton className="w-48" />}
+                                result={j => j.name}
+                            />
+                        </h1>
                         <div className="flex gap-2">
-                            <Badge variant="secondary">
-                                {formatExperienceLevel(jobInfo.experienceLevel)}
-                            </Badge>
-                            {jobInfo.title && <Badge variant="secondary">{jobInfo.title}</Badge>}
+                            <SuspendedItem
+                                item={jobInfo}
+                                fallback={<Skeleton className="w-12" />}
+                                result={j => (
+                                    <Badge variant="secondary">
+                                        {formatExperienceLevel(j.experienceLevel)}
+                                    </Badge>
+                                )}
+                            />
+                            <SuspendedItem
+                                item={jobInfo}
+                                fallback={null}
+                                result={j => {
+                                    return j.title && <Badge variant="secondary">{j.title}</Badge>;
+                                }}
+                            />
                         </div>
                     </div>
-                    <p className="text-muted-foreground line-clamp-3">{jobInfo.description}</p>
+                    <p className="text-muted-foreground line-clamp-3">
+                        <SuspendedItem
+                            item={jobInfo}
+                            fallback={<Skeleton className="w-96" />}
+                            result={j => j.description}
+                        />
+                    </p>
                 </header>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 has-hover:*:not-hover:opacity-70">
                     {options.map(option => (
@@ -79,8 +110,6 @@ export default async function JobInfoPage({params}: {params: Promise<{jobInfoId:
 async function getJobInfo(id: string, userId: string) {
     "use cache"
     cacheTag(getJobInfoIdTag(id));
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     return db.query.JobInfoTable.findFirst({
         where: and(eq(JobInfoTable.id, id), eq(JobInfoTable.userId, userId))
