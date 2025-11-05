@@ -77,7 +77,7 @@ async function JobInfos() {
                 <Link href="/app/job-infos/new" className="transition-opacity">
                     <Card className="h-full flex items-center justify-center border-dashed border-3 bg-transparent hover:border-primary/50 transition-colors shadow-none">
                         <div className="text-lg flex items-center gap-2">
-                            <PlusIcon className="size-6"></PlusIcon>
+                            <PlusIcon className="size-6"/>
                             Create New Job Description
                         </div>
                     </Card>
