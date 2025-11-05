@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { db } from "@/drizzle/db";
 import { JobInfoTable } from "@/drizzle/schema";
 import { getJobInfoUserTag } from "@/features/jobInfos/dbCache";
-import { JobInfoForm } from "@/features/jobInfos/JobInfoForm";
+import { JobInfoForm } from "@/features/jobInfos/components/JobInfoForm";
 import { formatExperienceLevel } from "@/features/jobInfos/lib/formatters";
 import getCurrentUser from "@/services/clerk/lib/getCurrentUser";
 import { desc, eq } from "drizzle-orm";

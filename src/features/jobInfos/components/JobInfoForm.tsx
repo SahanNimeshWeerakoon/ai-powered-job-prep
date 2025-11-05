@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { experienceLevels, JobInfoTable } from "@/drizzle/schema/jobInfo";
-import { formSchema } from "./schemas";
-import { formatExperienceLevel } from "./lib/formatters";
-import { createJobInfo, updateJobInfo } from "./actions";
+import { formSchema } from "../schemas";
+import { formatExperienceLevel } from "../lib/formatters";
+import { createJobInfo, updateJobInfo } from "../actions";
 import { toast } from "sonner";
 
 
