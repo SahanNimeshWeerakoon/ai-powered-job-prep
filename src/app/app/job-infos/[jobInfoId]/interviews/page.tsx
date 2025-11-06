@@ -7,6 +7,7 @@ import getCurrentUser from "@/services/clerk/lib/getCurrentUser";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { Loader2Icon } from "lucide-react";
 import { cacheTag } from "next/cache";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export default async function Page(
@@ -28,7 +29,8 @@ async function SuspendedPage({ jobInfoId }: {jobInfoId: string}) {
     if(userId == null) return redirectToSignIn();
 
     const interviews = await getInterviews(jobInfoId, "currentUserId");
-    if(interviews.length == 0) return redirect(`/job-infos/${jobInfoId}/interviews/new`);
+    if(interviews.length == 0) return redirect(`/app/job-infos/${jobInfoId}/interviews/new`);
+    
     return <div>Interviews for job info Id : {jobInfoId}</div>
 }
 
