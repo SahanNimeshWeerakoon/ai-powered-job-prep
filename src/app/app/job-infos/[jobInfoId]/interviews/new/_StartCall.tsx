@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { env } from "@/data/env/client";
 import { JobInfoTable } from "@/drizzle/schema";
 import { useVoice, VoiceReadyState } from "@humeai/voice-react";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, MicIcon, MicOffIcon, PhoneOffIcon } from "lucide-react";
 import { useEffect } from "react";
 
 export function StartCall(
@@ -20,36 +20,36 @@ export function StartCall(
 ) {
     const  { connect, readyState, disconnect, error } = useVoice();
     
-    // if(readyState === VoiceReadyState.IDLE) {
-    //     return (
-    //         <div className="flex justify-center items-center h-screen">
-    //             <Button size="lg" onClick={async () => {
-    //                 await connect({
-    //                     auth: {
-    //                         type: "accessToken",
-    //                         value: accessToken
-    //                     },
-    //                     configId: env.NEXT_PUBLIC_HUME_CONFIG_ID,
-    //                     sessionSettings: {
-    //                         type: "session_settings",
-    //                         variables: JSON.stringify({
-    //                             userName: String(user.name || "Guest"),
-    //                             title: String(jobInfo.title || "Not Specified"),
-    //                             description: String(jobInfo.description || ""),
-    //                             experienceLevel: String(jobInfo.experienceLevel || "")
-    //                         }) as unknown as Record<string, string>
-    //                     }
-    //                 });
-    //             }}>Start Interview</Button>
-    //         </div>
-    //     );
-    // }
+    if(readyState === VoiceReadyState.IDLE) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Button size="lg" onClick={async () => {
+                    await connect({
+                        auth: {
+                            type: "accessToken",
+                            value: accessToken
+                        },
+                        configId: env.NEXT_PUBLIC_HUME_CONFIG_ID,
+                        sessionSettings: {
+                            type: "session_settings",
+                            variables: JSON.stringify({
+                                userName: String(user.name || "Guest"),
+                                title: String(jobInfo.title || "Not Specified"),
+                                description: String(jobInfo.description || ""),
+                                experienceLevel: String(jobInfo.experienceLevel || "")
+                            }) as unknown as Record<string, string>
+                        }
+                    });
+                }}>Start Interview</Button>
+            </div>
+        );
+    }
 
-    // if(readyState === VoiceReadyState.CONNECTING || readyState === VoiceReadyState.CLOSED) {
-    //     return <div className="h-screen flex items-center justify-center">
-    //         <Loader2Icon className="animate-spin size-24" />
-    //     </div>;
-    // }
+    if(readyState === VoiceReadyState.CONNECTING || readyState === VoiceReadyState.CLOSED) {
+        return <div className="h-screen flex items-center justify-center">
+            <Loader2Icon className="animate-spin size-24" />
+        </div>;
+    }
 
     return <div className="overflow-y-auto h-screen flex flex-col-reverse">
         <div className="container py-6 flex flex-col items-center">
@@ -68,7 +68,37 @@ function Controls() {
 
     return (
         <div className="flex gap-5 rounded border px-5 py-2 w-fut sticky bottom-6 bg-backgorund items-center">
-            asfd
+            <Button
+                variant="ghost"
+                size="icon"    
+                className="-mx-3"
+                onClick={() => (isMuted ? unmute() : mute())}
+            >
+                { isMuted ? <MicOffIcon /> : <MicIcon />}
+                <span className="sr-only">{isMuted ? "Unmute" : "Mute"}</span>
+            </Button>
+            <div className="self-stretch">
+                <FftVisualizer fft={micFft} />
+            </div>
+            <div className="text-sm text-muted-foreground tabular-nums">
+                {callDurationTimestamp}
+            </div>
+            <Button variant="ghost" size="icon" className="-mx-3" onClick={disconnect}>
+                <PhoneOffIcon className="text-desctructive" />
+                <span className="sr-only">End Call</span>
+            </Button>
+        </div>
+    );
+}
+
+function FftVisualizer({ fft }: { fft: number[] }) {
+    return (
+        <div className="flex gap-1 items-center h-full">
+            {fft.map((value, index) => {
+                const percent = (value / 4) * 100
+                return <div key={index} className="min-h-0.5 bg-primary/75 w-0.5 rounded" style={{ height: `${percent < 10 ? '0' : percent}%` }} />;
+            })}
+            {/* <div className="h-full bg-primary" style={{width: `${Math.min(100, Math.max(0, fft[0] * 100))}%`}} /> */}
         </div>
     );
 }
