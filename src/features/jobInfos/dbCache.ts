@@ -9,7 +9,7 @@ export function getJobInfoUserTag(userId: string) {
     return getUserTag("jobInfos", userId);
 }
 
-export function getJobInfoIdTag(id: string) {
+export function getJobInfoIdTag(id: string | undefined) {
     return getIdTag("jobInfos", id);
 }
 

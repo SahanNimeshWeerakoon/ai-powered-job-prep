@@ -3,9 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { env } from "@/data/env/client";
 import { JobInfoTable } from "@/drizzle/schema";
+import { createInterview, updateInterview } from "@/features/interviews/actions";
+import { errorToast } from "@/lib/errorToast";
+import { CondensedMessage } from "@/services/hume/components/CondensedMessages";
+import { condensedChatMessages } from "@/services/hume/lib/condensedChatMessages";
 import { useVoice, VoiceReadyState } from "@humeai/voice-react";
 import { Loader2Icon, MicIcon, MicOffIcon, PhoneOffIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export function StartCall(
     { jobInfo, user, accessToken }:
@@ -18,12 +23,54 @@ export function StartCall(
         }
     }
 ) {
-    const  { connect, readyState, disconnect, error } = useVoice();
+    const  { connect, readyState, chatMetadata, callDurationTimestamp } = useVoice();
+    const [interviewId, setInterviewId] = useState<string | null>(null);
+
+    const durationRef = useRef(callDurationTimestamp);
+    const router = useRouter();
+
+    useEffect(() => { durationRef.current = callDurationTimestamp; }, [callDurationTimestamp]);
+
+    // Update interview with humeChatId when chatMetadata changes
+    useEffect(() => {
+        if(chatMetadata?.chatId == null || interviewId == null) return;
+        
+        updateInterview(interviewId, { humeChatId: chatMetadata.chatId });
+    }, [chatMetadata?.chatId, interviewId]);
+
+    // Auto-save duration every 10 seconds
+    useEffect(() => {
+        if(interviewId == null) return;
+
+        const intervalId = setInterval(() => {
+            if(durationRef.current == null) return;
+            updateInterview(interviewId, { duration: durationRef.current });
+        }, 10000);
+
+        return () => clearInterval(intervalId);
+    }, [interviewId]);
+
+    useEffect(() => {
+        if(readyState !== VoiceReadyState.CLOSED) return;
+        if(interviewId == null) return router.push(`/app/job-infos/${jobInfo.id}/interviews/`);
+
+        if(durationRef.current != null) {
+            updateInterview(interviewId, { duration: durationRef.current });
+        }
+
+        router.push(`/app/job-infos/${jobInfo.id}/interviews/${interviewId}`);
+    }, [interviewId, readyState, jobInfo.id, router]);
     
     if(readyState === VoiceReadyState.IDLE) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Button size="lg" onClick={async () => {
+                    const res = await createInterview({ jobInfoId: jobInfo.id });
+
+                    if(res.error) return errorToast(res.message);
+
+                    setInterviewId(res.id);
+
                     await connect({
                         auth: {
                             type: "accessToken",
@@ -53,14 +100,19 @@ export function StartCall(
 
     return <div className="overflow-y-auto h-screen flex flex-col-reverse">
         <div className="container py-6 flex flex-col items-center">
-            <Messages />
+            <Messages user={user}/>
             <Controls />
         </div>
     </div>;
 }
 
-function Messages() {
-    return null;
+function Messages({ user }: { user: { name: string; imageUrl: string } }) {
+    const { messages, fft } = useVoice();
+    const condensedMessages = useMemo(() => {
+        return condensedChatMessages(messages)
+    }, [messages]);
+
+    return <CondensedMessage messages={condensedMessages} user={user} maxFft={Math.max(...fft)} />;
 }
 
 function Controls() {
