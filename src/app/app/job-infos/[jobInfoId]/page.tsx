@@ -3,15 +3,10 @@ import { Skeleton } from "@/components/Skeleton";
 import { SuspendedItem } from "@/components/SuspendedItem";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { db } from "@/drizzle/db";
-import { JobInfoTable } from "@/drizzle/schema";
 import { getJobInfo } from "@/features/jobInfos/actions";
-import { getJobInfoIdTag } from "@/features/jobInfos/dbCache";
 import { formatExperienceLevel } from "@/features/jobInfos/lib/formatters";
 import getCurrentUser from "@/services/clerk/lib/getCurrentUser";
-import { and, eq } from "drizzle-orm";
 import { ArrowRightIcon } from "lucide-react";
-import { cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -107,12 +102,3 @@ export default async function JobInfoPage({params}: {params: Promise<{jobInfoId:
         </div>
     );
 }
-
-// async function getJobInfo(id: string, userId: string) {
-//     "use cache"
-//     cacheTag(getJobInfoIdTag(id));
-
-//     return db.query.JobInfoTable.findFirst({
-//         where: and(eq(JobInfoTable.id, id), eq(JobInfoTable.userId, userId))
-//     });
-// }

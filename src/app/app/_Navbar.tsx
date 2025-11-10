@@ -39,7 +39,7 @@ export function Navbar({user}: {user: {name: string; imageUrl: string}}) {
                             const hrefPath = `/app/job-infos/${jobInfoId}/${href}`;
                             const isActive = pathName === hrefPath;
                             return (
-                                <Button key={name} variant={isActive ? "secondary" : "ghost"} asChild className="cursor-pointer">
+                                <Button key={name} variant={isActive ? "secondary" : "ghost"} asChild className="cursor-pointer sm:block hidden">
                                     <Link href={hrefPath}>
                                         <Icon />
                                         {name}

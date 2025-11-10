@@ -44,6 +44,7 @@ export async function updateInterview(
         duration?: string
     })
 {
+    console.log("updateInterview");
     const { userId } = await getCurrentUser({});
     if(userId == null) {
         return {
@@ -52,6 +53,8 @@ export async function updateInterview(
         }
     }
 
+    console.log("has userId", userId);
+
     const interview = await getInterview(id, userId);
     if(interview == null) {
         return {
@@ -59,6 +62,8 @@ export async function updateInterview(
             message: "You don't have permission to do this"
         }
     }
+
+    console.log("has Interview", interview);
 
     await updateInterviewDb(id, data);
 

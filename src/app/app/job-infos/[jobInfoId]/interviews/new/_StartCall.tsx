@@ -23,15 +23,17 @@ export function StartCall(
         }
     }
 ) {
+    const  voice = useVoice();
+    useEffect(() => {console.log(voice, "voice puka")}, [voice]);
     const  { connect, readyState, chatMetadata, callDurationTimestamp } = useVoice();
     const [interviewId, setInterviewId] = useState<string | null>(null);
 
     const durationRef = useRef(callDurationTimestamp);
     const router = useRouter();
+    
+    console.log({readyState});
 
-    useEffect(() => { durationRef.current = callDurationTimestamp; }, [callDurationTimestamp]);
-
-    // Update interview with humeChatId when chatMetadata changes
+    // // Update interview with humeChatId when chatMetadata changes
     useEffect(() => {
         if(chatMetadata?.chatId == null || interviewId == null) return;
         
@@ -41,24 +43,29 @@ export function StartCall(
     // Auto-save duration every 10 seconds
     useEffect(() => {
         if(interviewId == null) return;
+        if(callDurationTimestamp == null) return;
+
+        durationRef.current = callDurationTimestamp;
 
         const intervalId = setInterval(() => {
+            console.log("durationRef.current", durationRef.current);
             if(durationRef.current == null) return;
+            
             updateInterview(interviewId, { duration: durationRef.current });
         }, 10000);
 
         return () => clearInterval(intervalId);
-    }, [interviewId]);
+    }, [interviewId, callDurationTimestamp]);
 
     useEffect(() => {
         if(readyState !== VoiceReadyState.CLOSED) return;
-        if(interviewId == null) return router.push(`/app/job-infos/${jobInfo.id}/interviews/`);
+        // if(interviewId == null) return router.push(`/app/job-infos/${jobInfo.id}/interviews/`);
 
-        if(durationRef.current != null) {
-            updateInterview(interviewId, { duration: durationRef.current });
-        }
+        // if(durationRef.current != null) {
+        //     updateInterview(interviewId, { duration: durationRef.current });
+        // }
 
-        router.push(`/app/job-infos/${jobInfo.id}/interviews/${interviewId}`);
+        // router.push(`/app/job-infos/${jobInfo.id}/interviews/${interviewId}`);
     }, [interviewId, readyState, jobInfo.id, router]);
     
     if(readyState === VoiceReadyState.IDLE) {
@@ -66,12 +73,12 @@ export function StartCall(
             <div className="flex justify-center items-center h-screen">
                 <Button size="lg" onClick={async () => {
                     const res = await createInterview({ jobInfoId: jobInfo.id });
-
+                    
                     if(res.error) return errorToast(res.message);
 
                     setInterviewId(res.id);
 
-                    await connect({
+                    const test = await connect({
                         auth: {
                             type: "accessToken",
                             value: accessToken
@@ -79,6 +86,12 @@ export function StartCall(
                         configId: env.NEXT_PUBLIC_HUME_CONFIG_ID,
                         sessionSettings: {
                             type: "session_settings",
+                            // variables: {
+                            //     userName: String(user.name || "Guest"),
+                            //     title: String(jobInfo.title || "Not Specified"),
+                            //     description: String(jobInfo.description || ""),
+                            //     experienceLevel: String(jobInfo.experienceLevel || "")
+                            // }
                             variables: JSON.stringify({
                                 userName: String(user.name || "Guest"),
                                 title: String(jobInfo.title || "Not Specified"),
@@ -87,6 +100,7 @@ export function StartCall(
                             }) as unknown as Record<string, string>
                         }
                     });
+                    console.log({ test });
                 }}>Start Interview</Button>
             </div>
         );
